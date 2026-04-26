@@ -1,12 +1,12 @@
-// Replace with your Firebase project config from console.firebase.google.com
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyA8x4zVlCkkyzMHomeFRYQP9c_mjUGMtcE",
+  authDomain: "molly-reid-wedding-2.firebaseapp.com",
+  databaseURL: "https://molly-reid-wedding-2-default-rtdb.firebaseio.com",
+  projectId: "molly-reid-wedding-2",
+  storageBucket: "molly-reid-wedding-2.firebasestorage.app",
+  messagingSenderId: "316448100844",
+  appId: "1:316448100844:web:ddc4945fc41da9a9dc70c9",
+  measurementId: "G-YBZPNQ8Z4L"
 };
 
 // Change these passwords before the event!
