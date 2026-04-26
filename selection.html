@@ -82,8 +82,7 @@
       border-color: var(--molly-light);
       color: var(--molly);
     }
-    .big-vote-btn.molly.selected,
-    .big-vote-btn.molly:active {
+    .big-vote-btn.molly.selected {
       background: var(--molly);
       border-color: var(--molly);
       color: white;
@@ -93,8 +92,7 @@
       border-color: var(--reid-light);
       color: var(--reid);
     }
-    .big-vote-btn.reid.selected,
-    .big-vote-btn.reid:active {
+    .big-vote-btn.reid.selected {
       background: var(--reid);
       border-color: var(--reid);
       color: white;
@@ -168,8 +166,8 @@
       <div class="review-wrap">
         <div class="review-icon">🗳️</div>
         <h2 class="review-title">All 15 answered!</h2>
-        <p class="review-text">Ready to lock in your votes for Molly & Reid?</p>
-        <button class="submit-btn" id="submit-btn" onclick="submitVotes()">Submit My Votes</button>
+        <p class="review-text">Your votes have been saving as you go. Tap below to confirm you’re done!</p>
+        <button class="submit-btn" id="submit-btn" onclick="submitDone()">I’m Done! ✓</button>
         <div id="submit-error" class="error"></div>
       </div>
     </div>
@@ -178,8 +176,8 @@
     <div id="screen-success" class="screen">
       <div class="success-wrap">
         <div class="success-icon">🎉</div>
-        <h2 class="success-title">Votes Submitted!</h2>
-        <p class="success-text">Thanks for playing! The host will share the results after everyone votes.</p>
+        <h2 class="success-title">You’re all set!</h2>
+        <p class="success-text">Thanks for playing! The host will share the results as you go.</p>
       </div>
     </div>
   </div>
@@ -207,7 +205,8 @@
     ];
 
     let playerName = '';
-    let answers = {};
+    let playerKey  = '';
+    let answers    = {};
     let currentIndex = 0;
     let db;
 
@@ -229,7 +228,9 @@
         document.getElementById('name-error').textContent = 'Please enter your name to continue.';
         return;
       }
+      playerKey = playerName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
       currentIndex = 0;
+      answers = {};
       showQuestion();
       showScreen('screen-questions');
     }
@@ -247,9 +248,6 @@
       reidBtn.classList.remove('selected');
       mollyBtn.disabled = false;
       reidBtn.disabled  = false;
-
-      if (answers[currentIndex] === 'Molly') mollyBtn.classList.add('selected');
-      if (answers[currentIndex] === 'Reid')  reidBtn.classList.add('selected');
     }
 
     function vote(person) {
@@ -262,6 +260,14 @@
       mollyBtn.disabled = true;
       reidBtn.disabled  = true;
 
+      // Save to Firebase immediately after each vote
+      if (db) {
+        db.ref(`selection_votes/${playerKey}`).set({
+          name: playerName,
+          answers: { ...answers }
+        }).catch(e => console.error('Save error:', e));
+      }
+
       setTimeout(() => {
         currentIndex++;
         if (currentIndex < QUESTIONS.length) {
@@ -273,30 +279,8 @@
       }, 400);
     }
 
-    async function submitVotes() {
-      if (!db) {
-        document.getElementById('submit-error').textContent = 'Firebase not set up yet — check firebase-config.js.';
-        return;
-      }
-
-      const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-
-      try {
-        const key = playerName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-        await db.ref(`selection_votes/${key}`).set({
-          name: playerName,
-          answers: answers,
-          submittedAt: Date.now()
-        });
-        showScreen('screen-success');
-      } catch (e) {
-        document.getElementById('submit-error').textContent = 'Submission failed — please try again.';
-        btn.disabled = false;
-        btn.textContent = 'Submit My Votes';
-        console.error(e);
-      }
+    function submitDone() {
+      showScreen('screen-success');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
