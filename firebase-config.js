@@ -9,9 +9,8 @@ const firebaseConfig = {
   measurementId: "G-YBZPNQ8Z4L"
 };
 
-// Change these passwords before the event!
 const APP_CONFIG = {
-  mollyPassword: "bride2025",
-  reidPassword: "groom2025",
-  hostPassword: "host2025"
+  mollyPassword: "molly",
+  reidPassword: "reid",
+  hostPassword: "ben"
 };
