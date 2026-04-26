@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code | Molly & Reid's Wedding Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #c9a96e;
+      --text: #3d3028;
+      --text-light: #8a7a6a;
+      --bg: #faf8f5;
+      --border: #ede5db;
+    }
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .icon { font-size: 48px; margin-bottom: 12px; display: block; }
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+    .date {
+      font-size: 13px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 32px;
+    }
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    #qrcode canvas, #qrcode img {
+      border-radius: 8px;
+      border: 6px solid white;
+      outline: 2px solid var(--border);
+    }
+    .cta {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .url {
+      font-size: 12px;
+      color: var(--text-light);
+      word-break: break-all;
+    }
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: var(--gold);
+      margin: 24px auto;
+      border-radius: 2px;
+    }
+    @media print {
+      body { background: white; }
+      .card { box-shadow: none; border-color: #ddd; }
+      .no-print { display: none; }
+    }
+    .print-btn {
+      margin-top: 28px;
+      background: var(--gold);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .print-btn:hover { background: #a8864d; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="icon">💍</span>
+    <h1>Molly & Reid</h1>
+    <p class="date">Wedding Night Games</p>
+
+    <div id="qrcode"></div>
+
+    <p class="cta">Scan to play!</p>
+    <p class="url">https://benmoore12495.github.io/molly_wedding_games/</p>
+
+    <div class="divider"></div>
+    <p style="font-size: 13px; color: var(--text-light); line-height: 1.6;">
+      Vote on <strong>Most Likely To…</strong> questions<br>and watch the results live.
+    </p>
+
+    <button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    new QRCode(document.getElementById('qrcode'), {
+      text: 'https://benmoore12495.github.io/molly_wedding_games/',
+      width: 220,
+      height: 220,
+      colorDark: '#3d3028',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+</body>
+</html>
