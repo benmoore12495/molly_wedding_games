@@ -7,6 +7,119 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .progress-wrap {
+      margin-bottom: 20px;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .progress-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .single-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .single-card .q-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gold);
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .single-card .q-body {
+      font-size: 20px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 28px;
+      color: var(--text);
+    }
+    .big-vote-row {
+      display: flex;
+      gap: 12px;
+    }
+    .big-vote-btn {
+      flex: 1;
+      padding: 20px 8px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .big-vote-btn.molly {
+      background: var(--molly-light);
+      border-color: var(--molly-light);
+      color: var(--molly);
+    }
+    .big-vote-btn.molly.selected {
+      background: var(--molly);
+      border-color: var(--molly);
+      color: white;
+    }
+    .big-vote-btn.reid {
+      background: var(--reid-light);
+      border-color: var(--reid-light);
+      color: var(--reid);
+    }
+    .big-vote-btn.reid.selected {
+      background: var(--reid);
+      border-color: var(--reid);
+      color: white;
+    }
+    .review-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 0;
+    }
+    .review-icon { font-size: 64px; margin-bottom: 16px; }
+    .review-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .review-text {
+      color: var(--text-light);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 280px;
+      margin-bottom: 28px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -19,39 +132,52 @@
         <h1>Most Likely To…</h1>
         <p class="subtitle">Vote for Molly or Reid on 15 questions</p>
       </div>
-
       <div class="card">
         <div class="form-group">
           <label for="player-name">Your Name</label>
           <input type="text" id="player-name" placeholder="Enter your name" autocomplete="given-name" autocorrect="off">
         </div>
-        <button class="submit-btn" onclick="startGame()">Let's Play! →</button>
+        <button class="submit-btn" onclick="startGame()">Let’s Play! →</button>
         <div id="name-error" class="error"></div>
       </div>
     </div>
 
-    <!-- Screen 2: Questions -->
+    <!-- Screen 2: One question at a time -->
     <div id="screen-questions" class="screen">
-      <div class="page-header" style="margin-bottom: 8px;">
-        <h1>Most Likely To…</h1>
+      <div class="progress-wrap">
+        <div class="progress-label" id="progress-label">Question 1 of 15</div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
       </div>
 
-      <div class="answered-count" id="answered-count">0 / 15 answered</div>
+      <div class="single-card">
+        <div class="q-number" id="q-number">1</div>
+        <div class="q-body" id="q-body"></div>
+        <div class="big-vote-row">
+          <button class="big-vote-btn molly" id="btn-molly" onclick="vote('Molly')">💕 Molly</button>
+          <button class="big-vote-btn reid" id="btn-reid" onclick="vote('Reid')">🤵 Reid</button>
+        </div>
+      </div>
+    </div>
 
-      <div id="questions-list"></div>
-
-      <div class="sticky-submit">
-        <button class="submit-btn" id="submit-btn" onclick="submitVotes()">Submit My Votes</button>
+    <!-- Screen 3: Confirm & submit -->
+    <div id="screen-review" class="screen">
+      <div class="review-wrap">
+        <div class="review-icon">🗳️</div>
+        <h2 class="review-title">All 15 answered!</h2>
+        <p class="review-text">Your votes have been saving as you go. Tap below to confirm you’re done!</p>
+        <button class="submit-btn" id="submit-btn" onclick="submitDone()">I’m Done! ✓</button>
         <div id="submit-error" class="error"></div>
       </div>
     </div>
 
-    <!-- Screen 3: Success -->
+    <!-- Screen 4: Success -->
     <div id="screen-success" class="screen">
       <div class="success-wrap">
         <div class="success-icon">🎉</div>
-        <h2 class="success-title">Votes Submitted!</h2>
-        <p class="success-text">Thanks for playing! The host will share the results after everyone votes.</p>
+        <h2 class="success-title">You’re all set!</h2>
+        <p class="success-text">Thanks for playing! The host will share the results as you go.</p>
       </div>
     </div>
   </div>
@@ -79,7 +205,9 @@
     ];
 
     let playerName = '';
-    let answers = {};
+    let playerKey  = '';
+    let answers    = {};
+    let currentIndex = 0;
     let db;
 
     try {
@@ -100,87 +228,59 @@
         document.getElementById('name-error').textContent = 'Please enter your name to continue.';
         return;
       }
-      renderQuestions();
+      playerKey = playerName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      currentIndex = 0;
+      answers = {};
+      showQuestion();
       showScreen('screen-questions');
     }
 
-    function renderQuestions() {
-      document.getElementById('questions-list').innerHTML = QUESTIONS.map((q, i) => `
-        <div class="card" id="q-card-${i}">
-          <div class="q-text">
-            <span class="q-number">${i + 1}</span>
-            <span>${q}</span>
-          </div>
-          <div class="vote-row">
-            <button class="vote-btn molly" id="btn-molly-${i}" onclick="vote(${i}, 'Molly')">
-              💕 Molly
-            </button>
-            <button class="vote-btn reid" id="btn-reid-${i}" onclick="vote(${i}, 'Reid')">
-              🤵 Reid
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function showQuestion() {
+      const total = QUESTIONS.length;
+      document.getElementById('progress-label').textContent = `Question ${currentIndex + 1} of ${total}`;
+      document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
+      document.getElementById('q-number').textContent = currentIndex + 1;
+      document.getElementById('q-body').textContent = QUESTIONS[currentIndex];
+
+      const mollyBtn = document.getElementById('btn-molly');
+      const reidBtn  = document.getElementById('btn-reid');
+      mollyBtn.classList.remove('selected');
+      reidBtn.classList.remove('selected');
+      mollyBtn.disabled = false;
+      reidBtn.disabled  = false;
     }
 
-    function vote(qIndex, person) {
-      answers[qIndex] = person;
+    function vote(person) {
+      answers[currentIndex] = person;
 
-      const mollyBtn = document.getElementById(`btn-molly-${qIndex}`);
-      const reidBtn  = document.getElementById(`btn-reid-${qIndex}`);
-      const card     = document.getElementById(`q-card-${qIndex}`);
+      const mollyBtn = document.getElementById('btn-molly');
+      const reidBtn  = document.getElementById('btn-reid');
+      mollyBtn.classList.toggle('selected', person === 'Molly');
+      reidBtn.classList.toggle('selected',  person === 'Reid');
+      mollyBtn.disabled = true;
+      reidBtn.disabled  = true;
 
-      if (person === 'Molly') {
-        mollyBtn.classList.add('selected');
-        reidBtn.classList.remove('selected');
-      } else {
-        reidBtn.classList.add('selected');
-        mollyBtn.classList.remove('selected');
-      }
-      card.classList.remove('unanswered');
-
-      const count = Object.keys(answers).length;
-      document.getElementById('answered-count').textContent = `${count} / ${QUESTIONS.length} answered`;
-      document.getElementById('submit-error').textContent = '';
-    }
-
-    async function submitVotes() {
-      const unanswered = QUESTIONS.reduce((acc, _, i) => {
-        if (answers[i] === undefined) acc.push(i);
-        return acc;
-      }, []);
-
-      if (unanswered.length > 0) {
-        unanswered.forEach(i => document.getElementById(`q-card-${i}`).classList.add('unanswered'));
-        document.getElementById(`q-card-${unanswered[0]}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.getElementById('submit-error').textContent =
-          `${unanswered.length} question${unanswered.length > 1 ? 's' : ''} still need${unanswered.length === 1 ? 's' : ''} an answer.`;
-        return;
-      }
-
-      if (!db) {
-        document.getElementById('submit-error').textContent = 'Firebase not set up yet — check firebase-config.js.';
-        return;
-      }
-
-      const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-
-      try {
-        const key = playerName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-        await db.ref(`selection_votes/${key}`).set({
+      // Save to Firebase immediately after each vote
+      if (db) {
+        db.ref(`selection_votes/${playerKey}`).set({
           name: playerName,
-          answers: answers,
-          submittedAt: Date.now()
-        });
-        showScreen('screen-success');
-      } catch (e) {
-        document.getElementById('submit-error').textContent = 'Submission failed — please try again.';
-        btn.disabled = false;
-        btn.textContent = 'Submit My Votes';
-        console.error(e);
+          answers: { ...answers }
+        }).catch(e => console.error('Save error:', e));
       }
+
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < QUESTIONS.length) {
+          showQuestion();
+        } else {
+          document.getElementById('progress-fill').style.width = '100%';
+          showScreen('screen-review');
+        }
+      }, 400);
+    }
+
+    function submitDone() {
+      showScreen('screen-success');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
