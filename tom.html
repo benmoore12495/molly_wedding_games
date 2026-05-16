@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who Knows Tom the Best? | Molly & Reid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --tom: #5a8a6a;
+      --tom-dark: #3d6b50;
+      --tom-light: #dff0e8;
+    }
+
+    .progress-wrap { margin-bottom: 20px; }
+    .progress-label {
+      font-size: 12px;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .progress-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--tom);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .single-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .single-card .q-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tom);
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .single-card .q-body {
+      font-size: 19px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .choices-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+    .choice-btn {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+    .choice-btn:hover { border-color: var(--tom); background: var(--tom-light); }
+    .choice-btn.selected {
+      background: var(--tom);
+      border-color: var(--tom);
+      color: white;
+    }
+    .choice-btn.selected .choice-letter {
+      background: rgba(255,255,255,0.3);
+      color: white;
+    }
+    .choice-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tom-light);
+      color: var(--tom);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .tom-toggle {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .tom-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-light);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 400;
+    }
+    .tom-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--tom);
+      cursor: pointer;
+    }
+    #tom-password-wrap {
+      margin-top: 12px;
+      display: none;
+    }
+    #tom-password-wrap.visible { display: block; }
+
+    .submit-btn.tom-style {
+      background: var(--tom);
+    }
+    .submit-btn.tom-style:hover { background: var(--tom-dark); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <!-- Screen 1: Login -->
+    <div id="screen-name" class="screen active">
+      <div class="page-header">
+        <span class="icon">🎯</span>
+        <h1>Who Knows Tom?</h1>
+        <p class="subtitle">Answer 10 questions about Tom — see who knows him best!</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label for="player-name">Your Name</label>
+          <input type="text" id="player-name" placeholder="Enter your name" autocomplete="given-name" autocorrect="off">
+        </div>
+
+        <div class="tom-toggle">
+          <label>
+            <input type="checkbox" id="is-tom-check" onchange="toggleTomPassword()">
+            I'm Tom 🎉
+          </label>
+          <div id="tom-password-wrap">
+            <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+              <label for="tom-password">Tom's Secret Password</label>
+              <input type="password" id="tom-password" placeholder="Enter password">
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn tom-style" style="margin-top: 20px;" onclick="startGame()">Let's Play! →</button>
+        <div id="name-error" class="error"></div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Questions -->
+    <div id="screen-questions" class="screen">
+      <div class="progress-wrap">
+        <div class="progress-label" id="progress-label">Question 1 of 10</div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="single-card">
+        <div class="q-number" id="q-number">1</div>
+        <div class="q-body" id="q-body"></div>
+        <div class="choices-list" id="choices-list"></div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Success -->
+    <div id="screen-success" class="screen">
+      <div class="success-wrap">
+        <div class="success-icon" id="success-icon">🎯</div>
+        <h2 class="success-title" id="success-title">Answers locked in!</h2>
+        <p class="success-text" id="success-text">Thanks for playing! The host will reveal the scores when everyone is done.</p>
+        <a href="tom-answers.html" style="margin-top: 20px; display: inline-block; color: var(--tom); font-size: 14px;">View Results →</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const QUESTIONS = [
+      {
+        q: "What's Tom's go-to drink at a party?",
+        choices: ["Beer 🍺", "Whiskey & Coke 🥃", "Wine 🍷", "Whatever's closest 🤷"]
+      },
+      {
+        q: "How would Tom describe his ideal Saturday?",
+        choices: ["Watching sports all day 📺", "Out on an adventure 🏔️", "Sleeping in & taking it easy 😴", "BBQ with friends & family 🍖"]
+      },
+      {
+        q: "If Tom had to eat one food forever, what would it be?",
+        choices: ["Pizza 🍕", "Tacos 🌮", "Steak 🥩", "Burgers 🍔"]
+      },
+      {
+        q: "What best describes Tom's dancing style?",
+        choices: ["Owns the dance floor 🕺", "Two left feet but great effort 😅", "Only after a few drinks 🍻", "Strictly a bench-warmer 🪑"]
+      },
+      {
+        q: "What's Tom most likely doing at tonight's reception?",
+        choices: ["Dominating the dance floor 🎶", "Working the room, talking to everyone 🤝", "Guarding the food table 🍴", "Getting emotional during speeches 😭"]
+      },
+      {
+        q: "Pick Tom's spirit animal:",
+        choices: ["Golden Retriever – loyal & lovable 🐶", "Bear – loves comfort & food 🐻", "Eagle – sharp, focused, a natural leader 🦅", "Dolphin – social & always having fun 🐬"]
+      },
+      {
+        q: "What was Tom's vibe when he was younger?",
+        choices: ["The class clown 😂", "The athlete 🏈", "The social butterfly 🦋", "The quiet one who surprised everyone 😎"]
+      },
+      {
+        q: "If Tom could instantly master one skill, what would it be?",
+        choices: ["Golf ⛳", "Cooking 👨‍🍳", "Playing an instrument 🎸", "A new language 🌍"]
+      },
+      {
+        q: "When Tom gives a toast, you can expect…",
+        choices: ["Heartfelt — makes everyone cry 😭", "A hilarious roast of the bride 😂", "Short, sweet, and perfectly on point 🥂", "Something he totally winged 🎤"]
+      },
+      {
+        q: "How does Tom really feel about today?",
+        choices: ["Over the moon — couldn't be prouder 🌙", "Emotional wreck (in the best way) 😭", "Ready to party all night 🎉", "All of the above ✨"]
+      }
+    ];
+
+    const LETTERS = ['A', 'B', 'C', 'D'];
+
+    let playerName = '';
+    let playerKey  = '';
+    let isTom      = false;
+    let answers    = {};
+    let currentIndex = 0;
+    let db;
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    } catch (e) {
+      console.error('Firebase init error:', e);
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function toggleTomPassword() {
+      const checked = document.getElementById('is-tom-check').checked;
+      document.getElementById('tom-password-wrap').classList.toggle('visible', checked);
+      if (checked) {
+        setTimeout(() => document.getElementById('tom-password').focus(), 50);
+      }
+    }
+
+    function startGame() {
+      playerName = document.getElementById('player-name').value.trim();
+      const errEl = document.getElementById('name-error');
+      errEl.textContent = '';
+
+      if (!playerName) {
+        errEl.textContent = 'Please enter your name to continue.';
+        return;
+      }
+
+      isTom = document.getElementById('is-tom-check').checked;
+
+      if (isTom) {
+        const pw = document.getElementById('tom-password').value;
+        if (pw !== APP_CONFIG.tomPassword) {
+          errEl.textContent = 'Incorrect password. Try again!';
+          return;
+        }
+        playerName = 'Tom';
+      }
+
+      playerKey = playerName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      currentIndex = 0;
+      answers = {};
+      showQuestion();
+      showScreen('screen-questions');
+    }
+
+    function showQuestion() {
+      const total = QUESTIONS.length;
+      const q = QUESTIONS[currentIndex];
+
+      document.getElementById('progress-label').textContent = `Question ${currentIndex + 1} of ${total}`;
+      document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
+      document.getElementById('q-number').textContent = currentIndex + 1;
+      document.getElementById('q-body').textContent = q.q;
+
+      const list = document.getElementById('choices-list');
+      list.innerHTML = '';
+      q.choices.forEach((choice, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span class="choice-letter">${LETTERS[i]}</span>${choice}`;
+        btn.onclick = () => pick(i);
+        list.appendChild(btn);
+      });
+    }
+
+    function pick(index) {
+      answers[currentIndex] = index;
+
+      const btns = document.querySelectorAll('.choice-btn');
+      btns.forEach((b, i) => {
+        b.classList.toggle('selected', i === index);
+        b.disabled = true;
+      });
+
+      if (db) {
+        db.ref(`tom_game/players/${playerKey}`).set({
+          name: playerName,
+          isTom: isTom,
+          answers: { ...answers }
+        }).catch(e => console.error('Save error:', e));
+      }
+
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < QUESTIONS.length) {
+          showQuestion();
+        } else {
+          document.getElementById('progress-fill').style.width = '100%';
+          if (isTom) {
+            document.getElementById('success-icon').textContent = '👑';
+            document.getElementById('success-title').textContent = 'Your answers are saved, Tom!';
+            document.getElementById('success-text').textContent = 'Now everyone else will find out how well they really know you.';
+          }
+          showScreen('screen-success');
+        }
+      }, 400);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('player-name').addEventListener('keypress', e => {
+        if (e.key === 'Enter') startGame();
+      });
+    });
+  </script>
+</body>
+</html>

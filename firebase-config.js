@@ -12,5 +12,6 @@ const firebaseConfig = {
 const APP_CONFIG = {
   mollyPassword: "molly",
   reidPassword: "reid",
-  hostPassword: "ben"
+  hostPassword: "ben",
+  tomPassword: "tom"
 };
