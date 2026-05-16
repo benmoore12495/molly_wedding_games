@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tom Results | Molly & Reid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --tom: #5a8a6a;
+      --tom-dark: #3d6b50;
+      --tom-light: #dff0e8;
+    }
+
+    .submit-btn.tom-style { background: var(--tom); }
+    .submit-btn.tom-style:hover { background: var(--tom-dark); }
+
+    /* Leaderboard */
+    .leaderboard { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .leader-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .leader-row.top {
+      border-color: var(--tom);
+      background: var(--tom-light);
+    }
+    .rank-badge {
+      font-size: 22px;
+      width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .leader-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .leader-score {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    .leader-score strong {
+      color: var(--tom);
+      font-size: 20px;
+    }
+
+    /* Q&A breakdown */
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      margin: 28px 0 14px;
+    }
+    .q-block {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .q-block .q-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .q-block .tom-answer {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--tom);
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--tom-light);
+      border-radius: 8px;
+    }
+    .player-answers { display: flex; flex-direction: column; gap: 6px; }
+    .player-answer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #faf8f5;
+    }
+    .player-answer-row .pa-name { font-weight: 600; }
+    .player-answer-row .pa-ans { color: var(--text-light); font-size: 13px; }
+    .player-answer-row .pa-badge {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .player-answer-row.correct { background: #e8f5ec; }
+    .player-answer-row.wrong   { background: #fdf0f0; }
+
+    /* Waiting / no-data states */
+    .waiting-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-light);
+    }
+    .waiting-state .wait-icon { font-size: 56px; margin-bottom: 12px; }
+    .waiting-state p { font-size: 15px; line-height: 1.6; }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--tom);
+      margin-bottom: 20px;
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      background: var(--tom);
+      border-radius: 50%;
+      animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <!-- Screen 1: Host unlock -->
+    <div id="screen-unlock" class="screen active">
+      <div class="page-header">
+        <span class="icon">🎯</span>
+        <h1>Tom Results</h1>
+        <p class="subtitle">See who knows Tom the best</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label for="host-pw">Host Password</label>
+          <input type="password" id="host-pw" placeholder="Enter password">
+        </div>
+        <button class="submit-btn tom-style" onclick="unlock()">View Results →</button>
+        <div id="unlock-error" class="error"></div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Results -->
+    <div id="screen-results" class="screen">
+      <div class="page-header" style="padding-bottom: 0;">
+        <span class="icon">🎯</span>
+        <h1>Who Knows Tom?</h1>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 8px;">
+        <span class="live-badge"><span class="live-dot"></span>Live Results</span>
+      </div>
+
+      <div id="tom-waiting" class="waiting-state">
+        <div class="wait-icon">⏳</div>
+        <p>Waiting for Tom to submit his answers before scores can be shown…</p>
+      </div>
+
+      <div id="results-body" style="display:none;">
+        <h2 class="section-title">🏆 Leaderboard</h2>
+        <div id="leaderboard" class="leaderboard"></div>
+
+        <h2 class="section-title">📋 Question Breakdown</h2>
+        <div id="q-breakdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const QUESTIONS = [
+      {
+        q: "What's Tom's ideal Saturday?",
+        choices: ["Watching sports", "Working on a project", "Relaxing at home", "Going out with family/friends"]
+      },
+      {
+        q: "Which snack would Tom grab first?",
+        choices: ["Chips", "Ice cream", "Nuts/trail mix", "Cookies"]
+      },
+      {
+        q: "What kind of vacation would Tom pick?",
+        choices: ["Beach resort", "Mountain cabin", "Big city trip", "Road trip"]
+      },
+      {
+        q: "What's Tom most likely to spend money on?",
+        choices: ["Food/restaurants", "Gadgets/tools", "Travel", "Hobby equipment"]
+      },
+      {
+        q: "Which TV category would Tom leave on all day?",
+        choices: ["Sports", "History/documentaries", "Home improvement/car shows", "Movies/series"]
+      },
+      {
+        q: "What would Tom say is his biggest pet peeve?",
+        choices: ["Slow drivers", "People being late", "Loud chewing", "Bad customer service"]
+      },
+      {
+        q: "If Tom could instantly master one skill, what would he choose?",
+        choices: ["Playing an instrument", "Cooking like a chef", "Fixing/building anything", "Speaking another language"]
+      },
+      {
+        q: "Which restaurant type would Tom choose first?",
+        choices: ["Steakhouse", "BBQ", "Italian", "Mexican"]
+      },
+      {
+        q: "What's most likely to put Tom in a good mood?",
+        choices: ["A good meal", "Time alone to relax", "Family time", "His favorite team winning"]
+      },
+      {
+        q: "If Tom had an unexpected free day, what would he probably do?",
+        choices: ["Work on house projects", "Watch TV/sports", "Go somewhere spontaneous", "Take a nap and relax"]
+      }
+    ];
+
+    const RANK_ICONS = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+
+    let db;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    } catch (e) {
+      console.error('Firebase init error:', e);
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function unlock() {
+      const pw = document.getElementById('host-pw').value;
+      const errEl = document.getElementById('unlock-error');
+      if (pw !== APP_CONFIG.hostPassword) {
+        errEl.textContent = 'Incorrect password.';
+        return;
+      }
+      errEl.textContent = '';
+      showScreen('screen-results');
+      startListening();
+    }
+
+    function startListening() {
+      db.ref('tom_game/players').on('value', snap => {
+        const data = snap.val() || {};
+        renderResults(data);
+      });
+    }
+
+    function renderResults(data) {
+      const players = Object.values(data);
+      const tom = players.find(p => p.isTom);
+
+      if (!tom || !tom.answers || Object.keys(tom.answers).length < QUESTIONS.length) {
+        document.getElementById('tom-waiting').style.display = 'block';
+        document.getElementById('results-body').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('tom-waiting').style.display = 'none';
+      document.getElementById('results-body').style.display = 'block';
+
+      const tomAnswers = tom.answers;
+      const others = players.filter(p => !p.isTom && p.answers);
+
+      // Score everyone
+      const scored = others.map(p => {
+        let score = 0;
+        for (let i = 0; i < QUESTIONS.length; i++) {
+          if (String(p.answers[i]) === String(tomAnswers[i])) score++;
+        }
+        return { name: p.name, answers: p.answers, score };
+      });
+      scored.sort((a, b) => b.score - a.score);
+
+      // Leaderboard
+      const lb = document.getElementById('leaderboard');
+      lb.innerHTML = '';
+      if (scored.length === 0) {
+        lb.innerHTML = '<p style="color:var(--text-light); text-align:center; font-size:14px;">No other players yet…</p>';
+      } else {
+        scored.forEach((p, i) => {
+          const row = document.createElement('div');
+          row.className = 'leader-row' + (i === 0 ? ' top' : '');
+          row.innerHTML = `
+            <div class="rank-badge">${RANK_ICONS[i] || (i + 1)}</div>
+            <div class="leader-name">${escHtml(p.name)}</div>
+            <div class="leader-score"><strong>${p.score}</strong> / ${QUESTIONS.length}</div>
+          `;
+          lb.appendChild(row);
+        });
+      }
+
+      // Question breakdown
+      const qb = document.getElementById('q-breakdown');
+      qb.innerHTML = '';
+      QUESTIONS.forEach((q, i) => {
+        const tomIdx = Number(tomAnswers[i]);
+        const block = document.createElement('div');
+        block.className = 'q-block';
+
+        let playersHtml = '';
+        if (scored.length === 0) {
+          playersHtml = '<p style="color:var(--text-light); font-size:13px;">No players yet</p>';
+        } else {
+          scored.forEach(p => {
+            const pIdx = Number(p.answers[i]);
+            const correct = pIdx === tomIdx;
+            playersHtml += `
+              <div class="player-answer-row ${correct ? 'correct' : 'wrong'}">
+                <span class="pa-name">${escHtml(p.name)}</span>
+                <span class="pa-ans">${escHtml(q.choices[pIdx] ?? '—')}</span>
+                <span class="pa-badge">${correct ? '✅' : '❌'}</span>
+              </div>`;
+          });
+        }
+
+        block.innerHTML = `
+          <div class="q-text">Q${i + 1} — ${escHtml(q.q)}</div>
+          <div class="tom-answer">👑 Tom: ${escHtml(q.choices[tomIdx])}</div>
+          <div class="player-answers">${playersHtml}</div>
+        `;
+        qb.appendChild(block);
+      });
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('host-pw').addEventListener('keypress', e => {
+        if (e.key === 'Enter') unlock();
+      });
+    });
+  </script>
+</body>
+</html>
